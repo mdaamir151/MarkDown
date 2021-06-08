@@ -1,5 +1,6 @@
 const ElementFactory = require('./ElementFactory')
 const { DELIM } = require('./definitions')
+const parseOptions = require('./optionParser')
 
 class BaseElement {
 	constructor(parentElement, options, body) {
@@ -30,16 +31,13 @@ class BaseElement {
 	}
 
 	getComponents() {
-		let reg = /(?<!:):([a-z0-9]+?)({.*?})?_({)?/g
+		let reg = /(?<!:):([a-z0-9]+?)(\[[a-z0-9\.\s]*?\])?_({)?/g
 		let match, components = [], index = 0, toIndex
 		while(match = reg.exec(this.body)) {
 			if (match.index > index) components.push({value: this.body.slice(index, match.index), type: 'text'})
 			let elementStr = match[1]
-			let optStr = match[2]
-			if (optStr) optStr = optStr.replace(/([a-zA-Z#-]+)/g, (match, p)=>{
-				return '"' + p + '"'
-			})
-			let opt = optStr && JSON.parse(optStr) || JSON.parse('{}')
+			let opt = match[2]
+			if (opt) opt = opt.slice(1, opt.length - 1)
 			let delim = match[3] && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
 			if (delim === DELIM.b) {
 				let bReg = /(?<!:)}|{/g
@@ -90,19 +88,9 @@ class BaseElement {
 		})
 		return s
 	}
-	getOptionsString() {
-		let formatArr = []
-		if (this.options.tc) formatArr.push('color: ' + this.options.tc)
-		if (this.options.ts) formatArr.push('font-size: ' + this.options.ts)
-		if (this.options.bc) formatArr.push('background-color: ' + this.options.bc)
-		if (this.options.fw) formatArr.push('font-weight: ' + this.options.fw)
-		if (this.options.fs) formatArr.push('font-style: ' + this.options.fs)
-		if (formatArr.length === 0) return ''
-		return 'style=' + '"' + formatArr.join('; ') + '"'
-	}
 
 	defaultRender(elementMarkup) {
-		return `<${elementMarkup} ${this.getOptionsString()}> ${this.parse()}</${elementMarkup}>`
+		return `<${elementMarkup} ${parseOptions(this.options)}> ${this.parse()}</${elementMarkup}>`
 	}
 }
 

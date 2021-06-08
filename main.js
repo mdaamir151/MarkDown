@@ -9,5 +9,6 @@ const run = function run(rawStr) {
 	return root.render()
 }
 
-let str = ':h1{tc: red}_This is title. check this string\n and :s{fw: bold}_this is other string'
+let str = ':h1[red]_{This is title}\nCheck this string and :s[bold blue hlt italic 1.5s]_this is other string'
+
 console.log(run(str))
