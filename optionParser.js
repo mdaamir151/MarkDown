@@ -14,7 +14,8 @@ const parseOptions = function(optionsStr) {
 		if (styles[s]) st.push(styles[s])
 		else if (s.endsWith('s') && Number(s.substring(0, s.length-1))) st.push('font-size: ' + s.substring(0, s.length-1) + 'em')
 	}
-	return 'style=' + '"' + st.join('; ') + '"'
+	if (st.length === 0) return ''
+	return ' style=' + '"' + st.join('; ') + '"' //ensure space at start
 }
 
 module.exports = parseOptions

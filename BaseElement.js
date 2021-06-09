@@ -3,10 +3,11 @@ const { DELIM } = require('./definitions')
 const parseOptions = require('./optionParser')
 
 class BaseElement {
-	constructor(parentElement, options, body) {
+	constructor(parentElement, options, body, elementStr) {
 		this.parentElement = parentElement
 		this.options = options
 		this.body = body
+		this.elementStr = elementStr
 		if (parentElement === null) this.factory = new ElementFactory()
 		else this.factory = parentElement.getFactory()
 	}
@@ -31,7 +32,7 @@ class BaseElement {
 	}
 
 	getComponents() {
-		let reg = /(?<!:):([a-z0-9]+?)(\[[a-z0-9\.\s]*?\])?_({)?/g
+		let reg = /(?<!:):([a-z0-9]+?)(\[[a-z0-9\.\s]*?\])?_[ ]*({)?/g //ignore first space
 		let match, components = [], index = 0, toIndex
 		while(match = reg.exec(this.body)) {
 			if (match.index > index) components.push({value: this.body.slice(index, match.index), type: 'text'})
@@ -40,7 +41,7 @@ class BaseElement {
 			if (opt) opt = opt.slice(1, opt.length - 1)
 			let delim = match[3] && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
 			if (delim === DELIM.b) {
-				let bReg = /(?<!:)}|(?<!:){/g
+				let bReg = /(?<!:)}|(?<!:){|$/g
 				let _c = 0, bMatch
 				bReg.lastIndex = match.index + match[0].length
 				while (bMatch = bReg.exec(this.body)) {
@@ -53,7 +54,7 @@ class BaseElement {
 					}
 				}
 			} else if (delim === DELIM.s) {
-				let sReg = /\s+?/g
+				let sReg = /\s+?|$/g
 				sReg.lastIndex =  match.index + match[0].length
 				let sMatch = sReg.exec(this.body)
 				index = sMatch.index
@@ -66,8 +67,11 @@ class BaseElement {
 			} else if (delim === DELIM.e) {
 				index = this.body.length
 				toIndex = index
+			} else if (delim === DELIM.x) {
+				index = match.index + match[0].length
+				toIndex = index
 			} else {
-				throw new Error("Invalid delimiter: " + delim)
+				throw new Error("Invalid delimiter: " + delim + ' or element \'' + elementStr + '\' not defined!')
 			}
 			components.push({value: elementStr, options: opt, body: this.body.slice(match.index + match[0].length, toIndex), type: 'element'})
 			reg.lastIndex = index
@@ -98,6 +102,7 @@ class BaseElement {
 			if (component.type === 'text') s += this.unscapeString(component.value)
 			else {
 				let element = this.factory.getElement(component.value, component.options, component.body, this)
+				if (!element) throw Error('Undefined Element: ' + component.value)
 				s += element.render()
 			}
 		})
@@ -105,7 +110,7 @@ class BaseElement {
 	}
 
 	defaultRender(elementMarkup) {
-		return `<${elementMarkup} ${parseOptions(this.options)}> ${this.parse()}</${elementMarkup}>`
+		return `<${elementMarkup}${parseOptions(this.options)}>${this.parse()}</${elementMarkup}>`
 	}
 }
 

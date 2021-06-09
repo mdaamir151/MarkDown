@@ -13,7 +13,7 @@ class ElementFactory {
 	getElement(elementStr, options, body, parent) {
 		for (let i = this.classes.length - 1; i>=0; --i) {
 			let tuple = this.classes[i]
-			if (tuple[0].test(elementStr)) return new tuple[1](parent, options, body)
+			if (tuple[0].test(elementStr)) return new tuple[1](parent, options || '', body, elementStr)
 		}
 		return null
 	}

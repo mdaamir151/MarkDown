@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo</title>
+	<link rel="stylesheet" type="text/css" href="demo.css" >
+	<script type="text/javascript" src="bundle.js" ></script>
+</head>
+<body>
+	<div id="main-view"></div>
+	<textarea id="edit-text" placeholder="write here">
+:h1_ Instruction
+:p_ Use '::p_' for paragraph. Formatting has to be passed inside []. This is true for any element
+:p[red]_ For e.g., '::p[red]_' displays text in red.
+
+:p[blue italic center]_ Center aligned italic blue paragraph!
+
+:p_ Supported elements are :h1_ {h1 or header1} :h2_ {h2 or header2} :h3_ {h3 or header3} 'f' for :f[2s blue]_ formatting, b :b_ bold, i :i_ italics, d :d_ delete, u :u_ underline
+:q_ :b_ Note: This is a quote
+
+:p_ while line is as follows:
+:l_
+
+:p_ By default, paragraph and header end at new line. Most others end with space and some like line end immediately. :b_ {To change endpoints or delimiters, use curly brackets({})}
+
+:p[green italic]_ [Work going on!]
+
+:p_ Use browserify to create bundle with your own changes:
+:q_ browserify demo.js > bundle.js
+:f[bold italic]_ after editing click outside text area for changes to take place.
+	</textarea>
+</body>
+</html>
