@@ -2,7 +2,10 @@ const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
 class line extends BaseElement {
-	static DEFAULT_DELIMITER = DELIM.x
+	static getDefaultDelimiter(elementStr) {
+		return DELIM.x
+	}
+
 	constructor(parentElement, options, body, elementStr) {
 		super(parentElement, options, body, elementStr)
 		this.elementStr = elementStr

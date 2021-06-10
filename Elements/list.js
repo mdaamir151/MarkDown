@@ -1,8 +1,11 @@
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
-class p extends BaseElement {
-	static DEFAULT_DELIMITER = DELIM.n
+class list extends BaseElement {
+	static getDefaultDelimiter(elementStr) {
+		if (elementStr === 'li') return DELIM.n
+		return DELIM.b
+	}
 	constructor(parentElement, options, body, elementStr) {
 		super(parentElement, options, body, elementStr)
 		this.elementStr = elementStr
@@ -11,8 +14,8 @@ class p extends BaseElement {
 	}
 
 	render() {
-		return this.defaultRender('p')
+		return this.defaultRender(this.elementStr)
 	}
 }
 
-module.exports = p
+module.exports = list

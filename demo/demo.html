@@ -9,25 +9,52 @@
 <body>
 	<div id="main-view"></div>
 	<textarea id="edit-text" placeholder="write here">
-:h1_ Instruction
-:p_ Use '::p_' for paragraph. Formatting has to be passed inside []. This is true for any element
-:p[red]_ For e.g., '::p[red]_' displays text in red.
+:h1 Instruction
+:p Use '::p ', ::p\n' or '::p{:i[gray]{...text...}}' for paragraph, where \n is newline. Formatting has to be passed inside []. This is true for any element
+:p[red] For e.g., '::p[red]' displays text in red.
 
-:p[blue italic center]_ Center aligned italic blue paragraph!
+:p[blue italic center] Center aligned italic blue paragraph!
 
-:p_ Supported elements are :h1_ {h1 or header1} :h2_ {h2 or header2} :h3_ {h3 or header3} 'f' for :f[2s blue]_ formatting, b :b_ bold, i :i_ italics, d :d_ delete, u :u_ underline
-:q_ :b_ Note: This is a quote
+:p Supported elements are 
+:h1 h1 or header1
+:h2 h2 or header2
+:h3 h3 or header3
+:h ::h is same as ::h1
+'f' for :f[2s blue] formatting, b :b bold, i :i italics, d :d delete, u :u underline
+:h[red] :k is unsupported element
+:q :b Note: This is a quote
 
-:p_ while line is as follows:
-:l_
+:p while line is as follows:
+:l
 
-:p_ By default, paragraph and header end at new line. Most others end with space and some like line end immediately. :b_ {To change endpoints or delimiters, use curly brackets({})}
+:tb[striped]{
+:th A|B|C|D
+:tr 1|2|3|4
+:tr td1|td2|td3|td4
+:tr td1|td2-pipe:||td3|td4
+}
 
-:p[green italic]_ [Work going on!]
+:p By default, paragraph and header end at new line. Most others end with space and some like line end immediately. 
+:b{To change endpoints or delimiters, use curly brackets({})}. Don't use {} for block elements like h and p if they're already line delimited. Otherwise unnecessay line breaks may be inserted
 
-:p_ Use browserify to create bundle with your own changes:
-:q_ browserify demo.js > bundle.js
-:f[bold italic]_ after editing click outside text area for changes to take place.
-	</textarea>
+:p[green italic] [Work going on!]
+
+:p Use browserify to create bundle with your own changes:
+:q browserify demo.js > bundle.js
+:f[bold italic] after editing click outside text area for changes to take place.
+
+:ul{
+:li this is item 1
+:li this is item 2
+:li this is item 3
+}
+
+:ol{
+:li this is item 1
+:li this is item 2
+:li this is item 3
+}
+:p link to google fonts is: :ln[https://fonts.google.com/]{google fonts}
+</textarea>
 </body>
 </html>

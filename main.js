@@ -9,9 +9,7 @@ const run = function run(rawStr) {
 	return root.render()
 }
 
-let str = ':h1[red]_{This :::{is title}\nCheck :b_ this string and :p_:f[bold blue hlt italic 1.5s]_this is other string.:q_{This is quote}\
- :line_ :b_bold, now :i_italics, :u_underline, :d_deleted. That\'s it'
-
+let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting, b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
 console.log(run(str))
 
 module.exports = run

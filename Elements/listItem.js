@@ -1,10 +1,9 @@
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
-class mix extends BaseElement {
+class listItem extends BaseElement {
 	static getDefaultDelimiter(elementStr) {
-		if (elementStr === 'p') return DELIM.n
-		return DELIM.s
+		return DELIM.b
 	}
 
 	constructor(parentElement, options, body, elementStr) {
@@ -12,7 +11,6 @@ class mix extends BaseElement {
 		this.elementStr = elementStr
 		this.options = options
 		this.body = body
-		if (this.elementStr === 'd') this.elementStr = 'del'
 	}
 
 	render() {
@@ -20,4 +18,4 @@ class mix extends BaseElement {
 	}
 }
 
-module.exports = mix
+module.exports = listItem

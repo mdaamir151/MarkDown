@@ -7,6 +7,14 @@ class ElementFactory {
 		this.classes.push([new RegExp(regex), elementCls])
 	}
 
+	elementRegistered(elementStr) {
+		for (let i = this.classes.length - 1; i>=0; --i) {
+			let tuple = this.classes[i]
+			if (tuple[0].test(elementStr)) return true
+		}
+		return false
+	}
+
 	/**
 	 * Check most recent first
 	 * */
@@ -20,7 +28,7 @@ class ElementFactory {
 	getDefaultDelimiter(elementStr) {
 		for (let i = this.classes.length - 1; i>=0; --i) {
 			let tuple = this.classes[i]
-			if (tuple[0].test(elementStr)) return tuple[1].DEFAULT_DELIMITER
+			if (tuple[0].test(elementStr)) return tuple[1].getDefaultDelimiter(elementStr)
 		}
 		return null
 	}

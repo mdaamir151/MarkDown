@@ -1,23 +1,27 @@
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
-class mix extends BaseElement {
+class link extends BaseElement {
 	static getDefaultDelimiter(elementStr) {
-		if (elementStr === 'p') return DELIM.n
 		return DELIM.s
 	}
-
 	constructor(parentElement, options, body, elementStr) {
 		super(parentElement, options, body, elementStr)
-		this.elementStr = elementStr
 		this.options = options
 		this.body = body
-		if (this.elementStr === 'd') this.elementStr = 'del'
+		this.elementStr = elementStr
 	}
 
 	render() {
-		return this.defaultRender(this.elementStr)
+		let target = "#"
+		this.options.split(' ').forEach(opt=>{
+			if (opt.startsWith('http')) {
+				target = opt
+				return
+			}
+		})
+		return `<a href="${target}" target="blank" ${this.parseStyle()}>${this.parse().trim()}</a>`
 	}
 }
 
-module.exports = mix
+module.exports = link

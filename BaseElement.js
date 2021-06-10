@@ -12,6 +12,16 @@ class BaseElement {
 		else this.factory = parentElement.getFactory()
 	}
 
+	getStyleComponents() {
+		return parseOptions(this.options)
+	}
+
+	parseStyle() {
+		let st = this.getStyleComponents()
+		if (st.length === 0) return ''
+		return ' style=' + '"' + st.join('; ') + '"' //ensure space at start
+	}
+
 	createOwnFactory() {
 		this.factory = new ElementFactory()
 	}
@@ -32,16 +42,17 @@ class BaseElement {
 	}
 
 	getComponents() {
-		let reg = /(?<!:):([a-z0-9]+?)(\[[a-z0-9\.\s]*?\])?_[ ]*({)?/g //ignore first space
+		let reg = /(?<![^:](?:::)*|^(?:::)*)([a-z0-9]+?)(\[.*?\])?(\s+|{)/g
 		let match, components = [], index = 0, toIndex
 		while(match = reg.exec(this.body)) {
-			if (match.index > index) components.push({value: this.body.slice(index, match.index), type: 'text'})
+			if (match.index > index) components.push({value: this.body.slice(index, match.index - 1), type: 'text'})
 			let elementStr = match[1]
+			if (!this.factory.elementRegistered(elementStr)) continue
 			let opt = match[2]
 			if (opt) opt = opt.slice(1, opt.length - 1)
-			let delim = match[3] && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
+			let delim = (match[3] === '{') && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
 			if (delim === DELIM.b) {
-				let bReg = /(?<!:)}|(?<!:){|$/g
+				let bReg = /(?<![^:](?:::)*:)}|(?<![^:](?:::)*:){|$/g
 				let _c = 0, bMatch
 				bReg.lastIndex = match.index + match[0].length
 				while (bMatch = bReg.exec(this.body)) {
@@ -54,7 +65,7 @@ class BaseElement {
 					}
 				}
 			} else if (delim === DELIM.s) {
-				let sReg = /\s+?|$/g
+				let sReg = /\s|$/g
 				sReg.lastIndex =  match.index + match[0].length
 				let sMatch = sReg.exec(this.body)
 				index = sMatch.index
@@ -81,11 +92,11 @@ class BaseElement {
 		return components
 	}
 
-	unscapeString(parsedStr) {
+	unscapeText(parsedStr) {
 		let s = []
 		let index = 0
 		for (let i=0; i<parsedStr.length - 1; ++i) {
-			if (parsedStr[i] === ':' && [':', '{', '}'].includes(parsedStr[i+1])) {
+			if (parsedStr[i] === ':' && [':', '{', '}', '|'].includes(parsedStr[i+1])) {
 				s.push(parsedStr.slice(index, i) + parsedStr[i+1])
 				index = i+2
 				i++
@@ -95,22 +106,31 @@ class BaseElement {
 		return s.join('')
 	}
 
+	trimNewLine(parsedStr) {
+		let i = 0, j = parsedStr.length
+		while(i<j && parsedStr[i] === '\n') i++
+		while(i<j && parsedStr[j-1] === '\n') j--
+		if (i === 0 && j === parsedStr.length) return parsedStr
+		console.log(parsedStr.slice(i, j))
+		return parsedStr.slice(i, j)
+	}
+
 	parse() {
 		let components = this.getComponents()
 		let s = ''
 		components.forEach(component => {
-			if (component.type === 'text') s += this.unscapeString(component.value)
+			if (component.type === 'text') s += this.trimNewLine(this.unscapeText(component.value)).replace(/[\n]/g, '<br>')
 			else {
 				let element = this.factory.getElement(component.value, component.options, component.body, this)
 				if (!element) throw Error('Undefined Element: ' + component.value)
 				s += element.render()
 			}
 		})
-		return s
+		return s.trim()
 	}
 
 	defaultRender(elementMarkup) {
-		return `<${elementMarkup}${parseOptions(this.options)}>${this.parse()}</${elementMarkup}>`
+		return `<${elementMarkup}${this.parseStyle()}>${this.parse()}</${elementMarkup}>`
 	}
 }
 

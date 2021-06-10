@@ -13,6 +13,27 @@ hr {
     margin-bottom: 30px;
 }
 
+table {
+	border-collapse: collapse;
+}
+
+table th {
+   background-color: #556b75;
+   color: white;
+}
+
+table td, th {
+    padding: 5px 30px;
+}
+
+table td, table th {
+	border: 1px solid #dedede;
+}
+
+table.striped tr:nth-child(odd) {
+    background-color: #f5f5f5;
+}
+
 blockquote {
 	background-color: #f9f9f9;
     margin: 0;
