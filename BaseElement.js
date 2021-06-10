@@ -119,7 +119,7 @@ class BaseElement {
 		let components = this.getComponents()
 		let s = ''
 		components.forEach(component => {
-			if (component.type === 'text') s += this.trimNewLine(this.unscapeText(component.value)).replace(/[\n]/g, '<br>')
+			if (component.type === 'text') s += this.trimNewLine(this.unscapeText(component.value)).replace(/[\n]/g, '')
 			else {
 				let element = this.factory.getElement(component.value, component.options, component.body, this)
 				if (!element) throw Error('Undefined Element: ' + component.value)

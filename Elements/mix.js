@@ -3,7 +3,7 @@ const { DELIM } = require('../definitions')
 
 class mix extends BaseElement {
 	static getDefaultDelimiter(elementStr) {
-		if (elementStr === 'p') return DELIM.n
+		if (elementStr === 'p' || elementStr === 'c') return DELIM.n
 		return DELIM.s
 	}
 
@@ -13,6 +13,7 @@ class mix extends BaseElement {
 		this.options = options
 		this.body = body
 		if (this.elementStr === 'd') this.elementStr = 'del'
+		else if (this.elementStr === 'c') this.elementStr = 'div'
 	}
 
 	render() {

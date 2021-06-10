@@ -120,7 +120,7 @@ class BaseElement {
 		let components = this.getComponents()
 		let s = ''
 		components.forEach(component => {
-			if (component.type === 'text') s += this.trimNewLine(this.unscapeText(component.value)).replace(/[\n]/g, '<br>')
+			if (component.type === 'text') s += this.trimNewLine(this.unscapeText(component.value)).replace(/[\n]/g, '')
 			else {
 				let element = this.factory.getElement(component.value, component.options, component.body, this)
 				if (!element) throw Error('Undefined Element: ' + component.value)
@@ -136,14 +136,14 @@ class BaseElement {
 }
 
 module.exports = BaseElement
-},{"./ElementFactory":2,"./definitions":12,"./optionParser":16}],2:[function(require,module,exports){
+},{"./ElementFactory":2,"./definitions":13,"./optionParser":17}],2:[function(require,module,exports){
 
 class ElementFactory {
 	constructor() {
 		this.classes = []
 	}
 	registerElement(regex, elementCls) {
-		this.classes.push([new RegExp(regex), elementCls])
+		this.classes.push([new RegExp(`^(${regex})$`), elementCls])
 	}
 
 	elementRegistered(elementStr) {
@@ -219,7 +219,7 @@ class format extends BaseElement {
 }
 
 module.exports = format
-},{"../BaseElement":1,"../definitions":12}],5:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],5:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -241,7 +241,48 @@ class h extends BaseElement {
 }
 
 module.exports = h
-},{"../BaseElement":1,"../definitions":12}],6:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],6:[function(require,module,exports){
+const BaseElement = require('../BaseElement')
+const { DELIM } = require('../definitions')
+
+class image extends BaseElement {
+	static getDefaultDelimiter(elementStr) {
+		return DELIM.s
+	}
+
+	constructor(parentElement, options, body, elementStr) {
+		super(parentElement, options, body, elementStr)
+		this.elementStr = elementStr
+		this.options = options
+		this.body = body
+	}
+
+	getStyleComponents() {
+		let keyWords = this.options.split(' ')
+		let st = super.getStyleComponents()
+		keyWords.forEach(word=>{
+			if (word === 'im-left') st.push('float: left')
+			else if (word === 'im-right') st.push('float: right')
+			else if (/^\d+w$/.test(word)) st.push(`max-width: ${word.slice(0, word.length-1)}%`)
+			else if (/^\d+h$/.test(word)) st.push(`max-height: ${word.slice(0, word.length-1)}%`)
+		})
+		return st
+	}
+
+	render() {
+		let source = "#"
+		this.options.split(' ').forEach(opt=>{
+			if (opt.startsWith('http')) {
+				source = opt
+				return
+			}
+		})
+		return `<img src="${source}"${this.parseStyle()} title="${this.parse()}">`
+	}
+}
+
+module.exports = image
+},{"../BaseElement":1,"../definitions":13}],7:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -263,7 +304,7 @@ class line extends BaseElement {
 }
 
 module.exports = line
-},{"../BaseElement":1,"../definitions":12}],7:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],8:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -276,6 +317,13 @@ class link extends BaseElement {
 		this.options = options
 		this.body = body
 		this.elementStr = elementStr
+	}
+
+	getStyleComponents() {
+		let keyWords = this.options.split(' ')
+		let st = super.getStyleComponents()
+		if (keyWords.indexOf('noline') >= 0) st.push('text-decoration: none')
+		return st
 	}
 
 	render() {
@@ -291,7 +339,7 @@ class link extends BaseElement {
 }
 
 module.exports = link
-},{"../BaseElement":1,"../definitions":12}],8:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],9:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -313,13 +361,13 @@ class list extends BaseElement {
 }
 
 module.exports = list
-},{"../BaseElement":1,"../definitions":12}],9:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],10:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
 class mix extends BaseElement {
 	static getDefaultDelimiter(elementStr) {
-		if (elementStr === 'p') return DELIM.n
+		if (elementStr === 'p' || elementStr === 'c') return DELIM.n
 		return DELIM.s
 	}
 
@@ -329,6 +377,7 @@ class mix extends BaseElement {
 		this.options = options
 		this.body = body
 		if (this.elementStr === 'd') this.elementStr = 'del'
+		else if (this.elementStr === 'c') this.elementStr = 'div'
 	}
 
 	render() {
@@ -337,7 +386,7 @@ class mix extends BaseElement {
 }
 
 module.exports = mix
-},{"../BaseElement":1,"../definitions":12}],10:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],11:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -359,7 +408,7 @@ class quote extends BaseElement {
 }
 
 module.exports = quote
-},{"../BaseElement":1,"../definitions":12}],11:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],12:[function(require,module,exports){
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
@@ -401,12 +450,12 @@ class table extends BaseElement {
 }
 
 module.exports = table
-},{"../BaseElement":1,"../definitions":12}],12:[function(require,module,exports){
+},{"../BaseElement":1,"../definitions":13}],13:[function(require,module,exports){
 
 const DELIM = {b: '{', n: '\n', s: ' ', e: '\0', x: ''}
 
 module.exports = { DELIM }
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const run = require('../main')
 
 window.onload = function() {
@@ -426,7 +475,7 @@ window.onload = function() {
 
 	updateView()
 }
-},{"../main":15}],14:[function(require,module,exports){
+},{"../main":16}],15:[function(require,module,exports){
 const h = require('./Elements/h')
 const f = require('./Elements/format')
 const mix = require('./Elements/mix')
@@ -435,21 +484,23 @@ const quote = require('./Elements/quote')
 const list = require('./Elements/list')
 const link = require('./Elements/link')
 const table = require('./Elements/table')
+const image = require('./Elements/image')
 
 //key is regex string
 const elements = {
 	'h|h1|h2|h3' : h,
 	'f': f,
-	'b|d|u|i|p': mix,
+	'b|d|u|i|p|c': mix,
 	'l': line,
 	'q': quote,
 	'ol|ul|li': list,
 	'ln': link,
 	'tb|tr|th': table,
+	'im': image,
 }
 
 module.exports = elements
-},{"./Elements/format":4,"./Elements/h":5,"./Elements/line":6,"./Elements/link":7,"./Elements/list":8,"./Elements/mix":9,"./Elements/quote":10,"./Elements/table":11}],15:[function(require,module,exports){
+},{"./Elements/format":4,"./Elements/h":5,"./Elements/image":6,"./Elements/line":7,"./Elements/link":8,"./Elements/list":9,"./Elements/mix":10,"./Elements/quote":11,"./Elements/table":12}],16:[function(require,module,exports){
 const RootElement = require('./Elements/RootElement')
 const elements = require('./elementRegister')
 
@@ -461,11 +512,11 @@ const run = function run(rawStr) {
 	return root.render()
 }
 
-let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting, b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
+let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting :im[https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Portrait_of_Sir_Isaac_Newton%2C_1689.jpg/200px-Portrait_of_Sir_Isaac_Newton%2C_1689.jpg] image , :line :ln[noline] link b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
 console.log(run(str))
 
 module.exports = run
-},{"./Elements/RootElement":3,"./elementRegister":14}],16:[function(require,module,exports){
+},{"./Elements/RootElement":3,"./elementRegister":15}],17:[function(require,module,exports){
 //example: 1.5s uline/strike bold italic center/left/right
 const styles = {
 	'red' : 'color: red', 'yellow' : 'color: yellow', 'blue' : 'color: blue', 'green': 'color: green', 'black': 'color: black', 'gray': 'color: gray',
@@ -486,4 +537,4 @@ const parseOptions = function(optionsStr) {
 }
 
 module.exports = parseOptions
-},{}]},{},[13]);
+},{}]},{},[14]);

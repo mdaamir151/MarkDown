@@ -1,34 +1,40 @@
 const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
-class link extends BaseElement {
+class image extends BaseElement {
 	static getDefaultDelimiter(elementStr) {
 		return DELIM.s
 	}
+
 	constructor(parentElement, options, body, elementStr) {
 		super(parentElement, options, body, elementStr)
+		this.elementStr = elementStr
 		this.options = options
 		this.body = body
-		this.elementStr = elementStr
 	}
 
 	getStyleComponents() {
 		let keyWords = this.options.split(' ')
 		let st = super.getStyleComponents()
-		if (keyWords.indexOf('noline') >= 0) st.push('text-decoration: none')
+		keyWords.forEach(word=>{
+			if (word === 'im-left') st.push('float: left')
+			else if (word === 'im-right') st.push('float: right')
+			else if (/^\d+w$/.test(word)) st.push(`max-width: ${word.slice(0, word.length-1)}%`)
+			else if (/^\d+h$/.test(word)) st.push(`max-height: ${word.slice(0, word.length-1)}%`)
+		})
 		return st
 	}
 
 	render() {
-		let target = "#"
+		let source = "#"
 		this.options.split(' ').forEach(opt=>{
 			if (opt.startsWith('http')) {
-				target = opt
+				source = opt
 				return
 			}
 		})
-		return `<a href="${target}" target="blank" ${this.parseStyle()}>${this.parse().trim()}</a>`
+		return `<img src="${source}"${this.parseStyle()} title="${this.parse()}">`
 	}
 }
 
-module.exports = link
+module.exports = image

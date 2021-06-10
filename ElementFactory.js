@@ -4,7 +4,7 @@ class ElementFactory {
 		this.classes = []
 	}
 	registerElement(regex, elementCls) {
-		this.classes.push([new RegExp(regex), elementCls])
+		this.classes.push([new RegExp(`^(${regex})$`), elementCls])
 	}
 
 	elementRegistered(elementStr) {

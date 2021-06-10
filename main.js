@@ -9,7 +9,7 @@ const run = function run(rawStr) {
 	return root.render()
 }
 
-let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting, b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
+let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting :im[https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Portrait_of_Sir_Isaac_Newton%2C_1689.jpg/200px-Portrait_of_Sir_Isaac_Newton%2C_1689.jpg] image , :line :ln[noline] link b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
 console.log(run(str))
 
 module.exports = run
