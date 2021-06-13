@@ -7,6 +7,10 @@ const list = require('./Elements/list')
 const link = require('./Elements/link')
 const table = require('./Elements/table')
 const image = require('./Elements/image')
+const math = require('./Elements/math')
+const newLine = require('./Elements/break')
+const tab = require('./Elements/tab')
+const code = require('./Elements/code')
 
 //key is regex string
 const elements = {
@@ -19,6 +23,10 @@ const elements = {
 	'ln': link,
 	'tb|tr|th': table,
 	'im': image,
+	'm': math,
+	'n': newLine,
+	't': tab,
+	'code': code,
 }
 
 module.exports = elements

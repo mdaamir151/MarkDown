@@ -27,6 +27,7 @@ class link extends BaseElement {
 				return
 			}
 		})
+		if (target === "#" && this.body.startsWith('http')) target = this.body
 		return `<a href="${target}" target="blank" ${this.parseStyle()}>${this.parse().trim()}</a>`
 	}
 }

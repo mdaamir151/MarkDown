@@ -1,15 +1,22 @@
 const RootElement = require('./Elements/RootElement')
 const elements = require('./elementRegister')
 
+const checkCode = function() {
+	let codeDivs = document.getElementsByClassName('code-div')
+	for(let i=0; i<codeDivs.length; ++i) {
+		let codeElement = codeDivs[i]
+		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100})
+	}
+}
+
 const run = function run(rawStr) {
 	let root = new RootElement(null, rawStr, 'root')
 	for (const [regex, elementClass] of Object.entries(elements)) {
   		root.registerElement(regex, elementClass)
 	}
-	return root.render()
+	let rootElement = root.render()
+	setTimeout(checkCode, 1000)
+	return rootElement
 }
-
-let str = ":h{::h is same as ::h1::} \n'f' for :::f[2s blue] formatting :im[https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Portrait_of_Sir_Isaac_Newton%2C_1689.jpg/200px-Portrait_of_Sir_Isaac_Newton%2C_1689.jpg] image , :line :ln[noline] link b :b bold, i :i italics, d :d delete, u :u underline. :p link to google is: :ln[https://www.google.com/] google"
-console.log(run(str))
 
 module.exports = run

@@ -9,7 +9,9 @@ class RootElement extends BaseElement {
 	}
 
 	render() {
-		return '<div>' + this.parse() + '</div>'
+		let divEle = document.createElement('div')
+		divEle.innerHTML = this.parse()
+		return divEle
 	}
 }
 

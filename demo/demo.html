@@ -1,14 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<meta charset="utf-8">
-	<title>Demo</title>
-	<link rel="stylesheet" type="text/css" href="demo.css" >
-	<script type="text/javascript" src="bundle.js" ></script>
+    <meta charset="utf-8">
+    <title>Demo</title>
+    <link rel="stylesheet" type="text/css" href="demo.css">
+    <script>
+    MathJax = {
+        loader: { load: ['input/asciimath', 'output/chtml'] }
+    }
+    </script>
+    <link rel="stylesheet" href="../katex/katex.min.css">
+    <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js" crossorigin="anonymous" integrity="sha256-T5QdmsCQO5z8tBAXMrCZ4f3RX8wVdiA0Fu17FGnU1vU=" ></script>
+    <script type="text/javascript" src="bundle.js"></script>
 </head>
+
 <body>
-	<div id="main-view"></div>
-	<textarea id="edit-text" placeholder="write here">
+    <div id="main-view"></div>
+    <textarea id="edit-text" placeholder="write here">
+:code{
+int main() {
+
+}
+}
+:p When :m{a != 0}, there are two solutions to :m{ax^2 + bx + c = 0} and they are:
+:p[center]{
+:m[1.5s]{x = (-b +- sqrt(b^2-4ac))/(2a)}, :t where :m{x in R} :n
+:m{sum_(i=1)^n i^3=((n(n+1))/2)^2} :m{\forall n = Z}
+}
+See: :ln http://asciimath.org/
+
 :h1 Instruction
 :c This is container or :i div.
 :p Use '::p ', ::p\n' or '::p{:i[gray]{...text...}}' for paragraph, where \n is newline. Formatting has to be passed inside []. This is true for any element
@@ -120,4 +141,5 @@
 }
 </textarea>
 </body>
+
 </html>
