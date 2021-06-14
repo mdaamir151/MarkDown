@@ -45,11 +45,14 @@ class BaseElement {
 		let reg = /(?<![^:](?:::)*|^(?:::)*)([a-z0-9]+?)(\[.*?\])?(\s+|{)/g
 		let match, components = [], index = 0, toIndex
 		while(match = reg.exec(this.body)) {
-			if (match.index > index) components.push({value: this.body.slice(index, match.index - 1), type: 'text'})
+			let v = this.body.slice(index, match.index - 1) || ""
+			v = v.replace(/^\s+|\s+$/g, '')
+			if (match.index > index && v.length > 0) components.push({value: this.body.slice(index, match.index - 1), type: 'text'})
 			let elementStr = match[1]
 			if (!this.factory.elementRegistered(elementStr)) continue
 			let opt = match[2]
 			if (opt) opt = opt.slice(1, opt.length - 1)
+			else opt = ''
 			let delim = (match[3] === '{') && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
 			if (delim === DELIM.b) {
 				let bReg = /(?<![^:](?:::)*:)}|(?<![^:](?:::)*:){|$/g
@@ -87,8 +90,9 @@ class BaseElement {
 			components.push({value: elementStr, options: opt, body: this.body.slice(match.index + match[0].length, toIndex), type: 'element'})
 			reg.lastIndex = index
 		}
-
-		if (index < this.body.length) components.push({value: this.body.slice(index), type: 'text'})
+		let v = this.body.slice(index) || ""
+		v = v.replace(/^\s+|\s+$/g, '')
+		if (index < this.body.length && v.length > 0) components.push({value: v, type: 'text'})
 		return components
 	}
 
@@ -111,7 +115,6 @@ class BaseElement {
 		while(i<j && parsedStr[i] === '\n') i++
 		while(i<j && parsedStr[j-1] === '\n') j--
 		if (i === 0 && j === parsedStr.length) return parsedStr
-		console.log(parsedStr.slice(i, j))
 		return parsedStr.slice(i, j)
 	}
 

@@ -15,13 +15,21 @@ class ElementFactory {
 		return false
 	}
 
+	escapeHTML(rawString) {
+		let rstr = rawString.replace(/<|>/g, (match)=>{
+			if (match === '<') return '&lt;'
+			else return '&gt;'
+		})
+		return rstr
+	}
+
 	/**
 	 * Check most recent first
 	 * */
 	getElement(elementStr, options, body, parent) {
 		for (let i = this.classes.length - 1; i>=0; --i) {
 			let tuple = this.classes[i]
-			if (tuple[0].test(elementStr)) return new tuple[1](parent, options || '', body, elementStr)
+			if (tuple[0].test(elementStr)) return new tuple[1](parent, options || '', this.escapeHTML(body), elementStr)
 		}
 		return null
 	}

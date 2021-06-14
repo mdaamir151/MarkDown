@@ -46,11 +46,14 @@ class BaseElement {
 		let reg = /(?<![^:](?:::)*|^(?:::)*)([a-z0-9]+?)(\[.*?\])?(\s+|{)/g
 		let match, components = [], index = 0, toIndex
 		while(match = reg.exec(this.body)) {
-			if (match.index > index) components.push({value: this.body.slice(index, match.index - 1), type: 'text'})
+			let v = this.body.slice(index, match.index - 1) || ""
+			v = v.replace(/^\s+|\s+$/g, '')
+			if (match.index > index && v.length > 0) components.push({value: this.body.slice(index, match.index - 1), type: 'text'})
 			let elementStr = match[1]
 			if (!this.factory.elementRegistered(elementStr)) continue
 			let opt = match[2]
 			if (opt) opt = opt.slice(1, opt.length - 1)
+			else opt = ''
 			let delim = (match[3] === '{') && DELIM.b || this.factory.getDefaultDelimiter(elementStr)
 			if (delim === DELIM.b) {
 				let bReg = /(?<![^:](?:::)*:)}|(?<![^:](?:::)*:){|$/g
@@ -88,8 +91,9 @@ class BaseElement {
 			components.push({value: elementStr, options: opt, body: this.body.slice(match.index + match[0].length, toIndex), type: 'element'})
 			reg.lastIndex = index
 		}
-
-		if (index < this.body.length) components.push({value: this.body.slice(index), type: 'text'})
+		let v = this.body.slice(index) || ""
+		v = v.replace(/^\s+|\s+$/g, '')
+		if (index < this.body.length && v.length > 0) components.push({value: v, type: 'text'})
 		return components
 	}
 
@@ -112,7 +116,6 @@ class BaseElement {
 		while(i<j && parsedStr[i] === '\n') i++
 		while(i<j && parsedStr[j-1] === '\n') j--
 		if (i === 0 && j === parsedStr.length) return parsedStr
-		console.log(parsedStr.slice(i, j))
 		return parsedStr.slice(i, j)
 	}
 
@@ -154,13 +157,21 @@ class ElementFactory {
 		return false
 	}
 
+	escapeHTML(rawString) {
+		let rstr = rawString.replace(/<|>/g, (match)=>{
+			if (match === '<') return '&lt;'
+			else return '&gt;'
+		})
+		return rstr
+	}
+
 	/**
 	 * Check most recent first
 	 * */
 	getElement(elementStr, options, body, parent) {
 		for (let i = this.classes.length - 1; i>=0; --i) {
 			let tuple = this.classes[i]
-			if (tuple[0].test(elementStr)) return new tuple[1](parent, options || '', body, elementStr)
+			if (tuple[0].test(elementStr)) return new tuple[1](parent, options || '', this.escapeHTML(body), elementStr)
 		}
 		return null
 	}
@@ -225,9 +236,9 @@ const BaseElement = require('../BaseElement')
 const { DELIM } = require('../definitions')
 
 const languages = ['c_cpp']
+const languageName = ['C/C++']
 
 class Code extends BaseElement {
-	static uniqueId = 10
 	static getDefaultDelimiter(elementStr) {
 		return DELIM.b
 	}
@@ -241,9 +252,10 @@ class Code extends BaseElement {
 	render() {
 		let opt = this.options.trim()
 		let lan = 'c_cpp'
-		if (languages.includes(opt)) lan = opt
-		Code.uniqueId++
-		return `<div data-lang='${lan}' class='code-div'>${this.body}</div>`
+		let langIdx = languages.indexOf(opt)
+		if (langIdx >= 0) lan = opt
+		else langIdx = 0
+		return `<div class="ace-container"><div class="ace-header"><span class="lang-tab">${languageName[langIdx]}</span></div><div data-lang='${lan}' class='code-div'>${this.body}</div></div>`
 	}
 }
 
@@ -569,21 +581,30 @@ module.exports = { DELIM }
 const run = require('../main')
 
 window.onload = function() {
-	let view = document.getElementById('main-view')
-	let editText = document.getElementById('edit-text')
+    let view = document.getElementById('main-view')
+    let editText = document.getElementById('edit-text')
+    editText.addEventListener('keydown', function(e) {
+        if (e.key == 'Tab') {
+            e.preventDefault();
+            let start = this.selectionStart;
+            let end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    })
 
-	const updateView = function() {
-		let content = editText.value
- 		let v = run(content)
- 		view.innerHTML = ''
- 		view.appendChild(v)
-	}
+    const updateView = function() {
+        let content = editText.value
+        let v = run(content)
+        view.innerHTML = ''
+        view.appendChild(v)
+    }
 
-	editText.addEventListener('blur', (event) => {
- 		updateView()
-	});
+    editText.addEventListener('blur', (event) => {
+        updateView()
+    });
 
-	updateView()
+    updateView()
 }
 },{"../main":22}],20:[function(require,module,exports){
 const h = require('./Elements/h')
@@ -628,7 +649,7 @@ const checkCode = function() {
 	let codeDivs = document.getElementsByClassName('code-div')
 	for(let i=0; i<codeDivs.length; ++i) {
 		let codeElement = codeDivs[i]
-		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100})
+		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100, theme: '../ace-src-min/textmate', readOnly:true})
 	}
 }
 
@@ -638,7 +659,7 @@ const run = function run(rawStr) {
   		root.registerElement(regex, elementClass)
 	}
 	let rootElement = root.render()
-	setTimeout(checkCode, 1000)
+	setTimeout(checkCode, 0)
 	return rootElement
 }
 

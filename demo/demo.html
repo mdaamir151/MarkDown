@@ -11,7 +11,7 @@
     }
     </script>
     <link rel="stylesheet" href="../katex/katex.min.css">
-    <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js" crossorigin="anonymous" integrity="sha256-T5QdmsCQO5z8tBAXMrCZ4f3RX8wVdiA0Fu17FGnU1vU=" ></script>
+    <script src="../ace-src-min/ace.js"></script>
     <script type="text/javascript" src="bundle.js"></script>
 </head>
 
@@ -19,9 +19,89 @@
     <div id="main-view"></div>
     <textarea id="edit-text" placeholder="write here">
 :code{
-int main() {
+#include <iostream>
+#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;chrono&gt;
+#include &lt;vector&gt;
+#include&lt;sstream&gt;
+#include "mem_manager.h"
 
+using namespace std;
+
+MemManager memManager;
+const size_t HEAP_SIZE = 10000;
+typedef std::thread::id thread_id;
+std::mutex memMutex;
+
+void printStats(string msg){
+    std::lock_guard&lt;std::mutex&gt; lock(memMutex);
+    std::thread::id tid = std::this_thread::get_id();
+    cout&lt;msg&lt;endl;
+    cout&lt;"mem_usage by thread with id "&lt;tid&lt;": "&lt;memManager.mem_usage()&lt;endl;
+    cout&lt;"largest_free_block_size: "&lt;memManager.largest_free_block_size()&lt;endl;
+    cout&lt;"total_free_memory: "&lt;memManager.total_free_memory()&lt;endl;
 }
+
+void run() {
+     std::thread::id tid = std::this_thread::get_id();
+     cout&lt;"running thread id: "&lt;tid&lt;endl;
+     vector&lt;void*&gt; memVector;
+     int sz = 0, p;
+     void* mem = nullptr;
+     srand(time(0));
+     stringstream msg;
+
+    for (int i=0; i&lt;10; ++i)
+    {
+        msg = stringstream("");
+        int r = rand() % 3;
+        switch(r)
+        {
+        case 0:
+            sz = 1 + rand() % 200;
+            mem = memManager.malloc(sz);
+            memVector.push_back(mem);
+            msg &lt; "allocated memory of size " &lt; sz &lt; " for thread_id " &lt; tid;
+            break;
+        case 1:
+            if (memVector.size() == 0)
+                continue;
+            p = rand() % memVector.size();
+            memManager.free(memVector[p]);
+            memVector.erase(memVector.begin() + p);
+            msg &lt; "released memory by thread id: "&lt;tid;
+            break;
+        case 2:
+            memManager.free_all();
+            msg &lt; "released all memory from thread id: "&lt;tid;
+            break;
+        }
+        printStats(msg.str());
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void runWithException() {
+    try{
+        run();
+    }catch(const char* e) {
+        cout&lt;"Exception: "&lt;e&lt;endl;
+    }
+}
+
+int main()
+{
+    memManager.acquireHeap(HEAP_SIZE);
+    vector&lt;thread*&gt; threads;
+    for(int i=0; i&lt;5; ++i){
+        thread* t = new thread(runWithException);
+        threads.push_back(t);
+    }
+    for(auto t: threads) t-&gt;join();
+    return 0;
+}
+
 }
 :p When :m{a != 0}, there are two solutions to :m{ax^2 + bx + c = 0} and they are:
 :p[center]{

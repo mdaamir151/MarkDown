@@ -62,4 +62,21 @@ blockquote {
 	box-sizing: border-box;
 	outline: none;
 	overflow-y: auto;
+	-moz-tab-size: 4; /* Firefox */
+  	tab-size: 4;
+}
+
+.ace-container{
+	border: 1px solid #bfbfbf;
+    border-radius: 3px;
+}
+
+.ace-header{
+    padding: 8px 35px;
+    background-color: #556b75;
+}
+
+.lang-tab{
+    color: white;
+    cursor: pointer;
 }
