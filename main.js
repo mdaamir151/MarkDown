@@ -5,7 +5,7 @@ const checkCode = function() {
 	let codeDivs = document.getElementsByClassName('code-div')
 	for(let i=0; i<codeDivs.length; ++i) {
 		let codeElement = codeDivs[i]
-		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100, theme: '../ace-src-min/textmate', readOnly:true})
+		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100, theme: 'ace/theme/textmate', fontSize:'12pt', readOnly:true})
 	}
 }
 

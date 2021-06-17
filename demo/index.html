@@ -39,7 +39,209 @@
             </div>
         </nav>
         <div id="editor-parent" class="mn-height">
-            <div contenteditable="true" role="textbox" id="editor" class="col-12 mn-height" placeholder="write here..."></div>
+            <div contenteditable="true" role="textbox" id="editor" class="col-12 mn-height" placeholder="write here...">
+:code{
+#include <iostream>
+#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;chrono&gt;
+#include &lt;vector&gt;
+#include&lt;sstream&gt;
+#include "mem_manager.h"
+
+using namespace std;
+
+MemManager memManager;
+const size_t HEAP_SIZE = 10000;
+typedef std::thread::id thread_id;
+std::mutex memMutex;
+
+void printStats(string msg){
+    std::lock_guard&lt;std::mutex&gt; lock(memMutex);
+    std::thread::id tid = std::this_thread::get_id();
+    cout&lt;msg&lt;endl;
+    cout&lt;"mem_usage by thread with id "&lt;tid&lt;": "&lt;memManager.mem_usage()&lt;endl;
+    cout&lt;"largest_free_block_size: "&lt;memManager.largest_free_block_size()&lt;endl;
+    cout&lt;"total_free_memory: "&lt;memManager.total_free_memory()&lt;endl;
+}
+
+void run() {
+     std::thread::id tid = std::this_thread::get_id();
+     cout&lt;"running thread id: "&lt;tid&lt;endl;
+     vector&lt;void*&gt; memVector;
+     int sz = 0, p;
+     void* mem = nullptr;
+     srand(time(0));
+     stringstream msg;
+
+    for (int i=0; i&lt;10; ++i)
+    {
+        msg = stringstream("");
+        int r = rand() % 3;
+        switch(r)
+        {
+        case 0:
+            sz = 1 + rand() % 200;
+            mem = memManager.malloc(sz);
+            memVector.push_back(mem);
+            msg &lt; "allocated memory of size " &lt; sz &lt; " for thread_id " &lt; tid;
+            break;
+        case 1:
+            if (memVector.size() == 0)
+                continue;
+            p = rand() % memVector.size();
+            memManager.free(memVector[p]);
+            memVector.erase(memVector.begin() + p);
+            msg &lt; "released memory by thread id: "&lt;tid;
+            break;
+        case 2:
+            memManager.free_all();
+            msg &lt; "released all memory from thread id: "&lt;tid;
+            break;
+        }
+        printStats(msg.str());
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void runWithException() {
+    try{
+        run();
+    }catch(const char* e) {
+        cout&lt;"Exception: "&lt;e&lt;endl;
+    }
+}
+
+int main()
+{
+    memManager.acquireHeap(HEAP_SIZE);
+    vector&lt;thread*&gt; threads;
+    for(int i=0; i&lt;5; ++i){
+        thread* t = new thread(runWithException);
+        threads.push_back(t);
+    }
+    for(auto t: threads) t-&gt;join();
+    return 0;
+}
+
+}
+:p When :m{a != 0}, there are two solutions to :m{ax^2 + bx + c = 0} and they are:
+:p[center]{
+:m[1.5s]{x = (-b +- sqrt(b^2-4ac))/(2a)}, :t where :m{x in R} :n
+:m{sum_(i=1)^n i^3=((n(n+1))/2)^2} :m{\forall n = Z}
+}
+See: :ln http://asciimath.org/
+
+:h1 Instruction
+:c This is container or :i div.
+:p Use '::p ', ::p\n' or '::p{:i[gray]{...text...}}' for paragraph, where \n is newline. Formatting has to be passed inside []. This is true for any element
+:p[red] For e.g., '::p[red]' displays text in red.
+
+:p[blue italic center] Center aligned italic blue paragraph!
+
+:p Supported elements are 
+:h1 h1 or header1
+:h2 h2 or header2
+:h3 h3 or header3
+:h ::h is same as ::h1
+'f' for :f[2s blue] formatting, b :b bold, i :i italics, d :d delete, u :u underline
+:h[red] :k is unsupported element
+:q :b Note: This is a quote
+
+:p while line is as follows:
+:l
+
+:tb[striped]{
+:th A|B|C|D
+:tr 1|2|3|4
+:tr td1|td2|td3|td4
+:tr td1|td2-pipe:||td3|td4
+}
+
+:p By default, paragraph and header end at new line. Most others end with space and some like line end immediately. 
+:b{To change endpoints or delimiters, use curly brackets({})}. Don't use {} for block elements like h and p if they're already line delimited. Otherwise unnecessay line breaks may be inserted
+
+:p[green italic] [Work going on!]
+
+:p Use browserify to create bundle with your own changes:
+:q browserify demo.js > bundle.js
+:f[bold italic] after editing click outside text area for changes to take place.
+
+:ul{
+:li this is item 1
+:li this is item 2
+:li this is item 3
+}
+
+:ol{
+:li this is item 1
+:li this is item 2
+:li this is item 3
+}
+:p link to google fonts is: :ln[https://fonts.google.com/]{google fonts}
+
+:p ======================================================================
+
+:h Gravity
+
+:l
+
+:p :b Gravity (from :ln[https://en.wikipedia.org/wiki/Latin_language] Latin :i gravitas 'weight'[1]), or :b gravitation, is a :ln[https://en.wikipedia.org/wiki/List_of_natural_phenomena noline]{natural phenomenon} by which all things with :ln[noline] mass or :ln[noline] energy—including :ln[noline]{planets, stars, galaxies,} and even :ln{light}[2]—are brought toward (or gravitate toward) one another. On Earth, gravity gives weight to physical objects, and the Moon's gravity causes the ocean tides. The gravitational attraction of the original gaseous matter present in the Universe caused it to begin coalescing and forming stars and caused the stars to group together into galaxies, so gravity is responsible for many of the large-scale structures in the Universe. Gravity has an infinite range, although its effects become weaker as objects get further away.
+
+:p Gravity is most accurately described by the general theory of relativity (proposed by Albert Einstein in 1915), which describes gravity not as a force, but as a consequence of masses moving along geodesic lines in a curved spacetime caused by the uneven distribution of mass. The most extreme example of this curvature of spacetime is a black hole, from which nothing—not even light—can escape once past the black hole's event horizon.[3] However, for most applications, gravity is well approximated by Newton's law of universal gravitation, which describes gravity as a force causing any two bodies to be attracted toward each other, with magnitude proportional to the product of their masses and inversely proportional to the square of the distance between them.
+
+
+:h2 History of gravitational theory
+
+:l
+
+:h3 Ancient world
+
+:p The ancient Greek philosopher Archimedes discovered the center of gravity of a triangle.[6] He also postulated that if two equal weights did not have the same center of gravity, the center of gravity of the two weights together would be in the middle of the line that joins their centers of gravity.[7]
+
+:p The Roman architect and engineer Vitruvius in :ln[https://en.wikipedia.org/wiki/De_Architectura italic]{De Architectura} postulated that gravity of an object did not depend on weight but its "nature".[8]
+
+:q[0.8s] Main article: :ln[italic]{List of Indian inventions and discoveries § Sciences}
+
+
+:h2 Equivalence principle
+
+:p The equivalence principle, explored by a succession of researchers including Galileo, Loránd Eötvös, and Einstein, expresses the idea that all objects fall in the same way, and that the effects of gravity are indistinguishable from certain aspects of acceleration and deceleration. The simplest way to test the weak equivalence principle is to drop two objects of different masses or compositions in a vacuum and see whether they hit the ground at the same time. Such experiments demonstrate that all objects fall at the same rate when other forces (such as air resistance and electromagnetic effects) are negligible. More sophisticated tests use a torsion balance of a type invented by Eötvös. Satellite experiments, for example STEP, are planned for more accurate experiments in space.[14] :im[im-right https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Portrait_of_Sir_Isaac_Newton%2C_1689.jpg/200px-Portrait_of_Sir_Isaac_Newton%2C_1689.jpg]{Issac Newton}
+
+:p Formulations of the equivalence principle include:
+
+:ul{
+
+:li The weak equivalence principle: The :i{trajectory of a point mass in a :ln{gravitational field} depends only on its initial position and velocity, and is independent of its composition}.[15]
+
+:li The Einsteinian equivalence principle: The outcome of any local non-gravitational experiment in a freely falling laboratory is independent of the velocity of the laboratory and its location in spacetime.[16]
+
+:li The strong equivalence principle requiring both of the above.
+}
+
+
+:h2 Anomalies and discrepancies
+
+:l
+
+:p There are some observations that are not adequately accounted for, which may point to the need for better theories of gravity or perhaps be explained in other ways.
+
+:ul{
+
+:li :b{Extra-fast stars}: Stars in galaxies follow a distribution of velocities where stars on the outskirts are moving faster than they should according to the observed distributions of normal matter. Galaxies within galaxy clusters show a similar pattern. Dark matter, which would interact through gravitation but not electromagnetically, would account for the discrepancy. Various modifications to Newtonian dynamics have also been proposed.
+
+:li :b{:ln[noline]{Flyby anomaly}}: Various spacecraft have experienced greater acceleration than expected during gravity assist maneuvers.
+
+:li :b{Accelerating expansion}: The metric expansion of space seems to be speeding up. Dark energy has been proposed to explain this. A recent alternative explanation is that the geometry of space is not homogeneous (due to clusters of galaxies) and that when the data are reinterpreted to take this into account, the expansion is not speeding up after all,[46] however this conclusion is disputed.[47]
+
+:li :b{Anomalous increase of the :ln{astronomical unit}}: Recent measurements indicate that planetary orbits are widening faster than if this were solely through the Sun losing mass by radiating energy.
+
+:li :b{Extra energetic photons}: Photons travelling through galaxy clusters should gain energy and then lose it again on the way out. The accelerating expansion of the Universe should stop the photons returning all the energy, but even taking this into account photons from the cosmic microwave background radiation gain twice as much energy as expected. This may indicate that gravity falls off faster than inverse-squared at certain distance scales.[48]
+
+:li :b{Extra massive hydrogen clouds}: The spectral lines of the Lyman-alpha forest suggest that hydrogen clouds are more clumped together at certain scales than expected and, like dark flow, may indicate that gravity falls off slower than inverse-squared at certain distance scales.[48]
+
+}
+            </div>
             <div id="view" class="col-12 mn-height">
                 <div id="view-content"></div>
                 <div class="d-flex flex-row-reverse mt-5">

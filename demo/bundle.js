@@ -580,19 +580,34 @@ module.exports = { DELIM }
 },{}],19:[function(require,module,exports){
 const run = require('../main')
 
+const clearSelection = function() {
+    if (window.getSelection) {
+        if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+        } else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+        }
+    } else if (document.selection) {  // IE?
+         document.selection.empty();
+    }
+}
+
 $(() => {
 
-	let editor = $('#editor')[0]
+    let editor = $('#editor')[0]
     let view = $('#view')[0]
     let viewContent = $('#view-content')[0]
-    console.log(editor)
-    console.log(view)
 
-    $('#editor').on("paste", function(e) {
-        e.preventDefault();
-        var text = e.originalEvent.clipboardData.getData("text/plain");
-        console.log(text)
-    })
+    editor.addEventListener('paste', (event) => {
+        let paste = (event.clipboardData || window.clipboardData).getData('text');
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return false;
+        selection.deleteFromDocument();
+        selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+        event.preventDefault();
+        clearSelection();
+    });
+
 
     $('#render').on("click", function(e) {
         $(view).fadeToggle("fast")
@@ -600,11 +615,18 @@ $(() => {
         $('#render-icon').toggleClass('fa-eye-slash fa-eye')
         let content = editor.innerText
         let v = run(content)
-        view.innerHTML = ''
-        view.appendChild(v)
+        viewContent.innerHTML = ''
+        viewContent.appendChild(v)
     })
+    
+    editor.addEventListener('focusout', function(e){
+        if (editor.innerText.trim().length === 0) {
+            editor.innerHTML = ""
+        }
+    });
 
 })
+
 },{"../main":22}],20:[function(require,module,exports){
 const h = require('./Elements/h')
 const f = require('./Elements/format')
@@ -648,7 +670,7 @@ const checkCode = function() {
 	let codeDivs = document.getElementsByClassName('code-div')
 	for(let i=0; i<codeDivs.length; ++i) {
 		let codeElement = codeDivs[i]
-		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100, theme: '../ace-src-min/textmate', readOnly:true})
+		ace.edit(codeElement, {mode: `ace/mode/${codeElement.dataset.lang}`, maxLines: 100, theme: 'ace/theme/textmate', fontSize:'12pt', readOnly:true})
 	}
 }
 
@@ -663,6 +685,7 @@ const run = function run(rawStr) {
 }
 
 module.exports = run
+
 },{"./Elements/RootElement":3,"./elementRegister":20}],23:[function(require,module,exports){
 //example: 1.5s uline/strike bold italic center/left/right
 const styles = {
