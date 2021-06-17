@@ -580,32 +580,31 @@ module.exports = { DELIM }
 },{}],19:[function(require,module,exports){
 const run = require('../main')
 
-window.onload = function() {
-    let view = document.getElementById('main-view')
-    let editText = document.getElementById('edit-text')
-    editText.addEventListener('keydown', function(e) {
-        if (e.key == 'Tab') {
-            e.preventDefault();
-            let start = this.selectionStart;
-            let end = this.selectionEnd;
-            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
-            this.selectionStart = this.selectionEnd = start + 1;
-        }
+$(() => {
+
+	let editor = $('#editor')[0]
+    let view = $('#view')[0]
+    let viewContent = $('#view-content')[0]
+    console.log(editor)
+    console.log(view)
+
+    $('#editor').on("paste", function(e) {
+        e.preventDefault();
+        var text = e.originalEvent.clipboardData.getData("text/plain");
+        console.log(text)
     })
 
-    const updateView = function() {
-        let content = editText.value
+    $('#render').on("click", function(e) {
+        $(view).fadeToggle("fast")
+        $(editor).fadeToggle("fast")
+        $('#render-icon').toggleClass('fa-eye-slash fa-eye')
+        let content = editor.innerText
         let v = run(content)
         view.innerHTML = ''
         view.appendChild(v)
-    }
+    })
 
-    editText.addEventListener('blur', (event) => {
-        updateView()
-    });
-
-    updateView()
-}
+})
 },{"../main":22}],20:[function(require,module,exports){
 const h = require('./Elements/h')
 const f = require('./Elements/format')
